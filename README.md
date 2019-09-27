@@ -41,7 +41,7 @@ The following describes the layout of the repository and its different artifacts
   
 ## Getting Started
 
-Create a new maven Java project and add the `tensorflow` dependency to your application:
+Create a new maven Java project and add the following `tensorflow` dependency:
 
 ```xml
 <dependency>
@@ -51,7 +51,9 @@ Create a new maven Java project and add the `tensorflow` dependency to your appl
 </dependency>
 ```
 
-Next you can use the Tensorflow Java API to build a image recognition service that uses a pre-trained Inception model: 
+With this you are ready to start using the `Tensorflow Java API` for building new or inferring a pre-built Tensorflow models. 
+
+Following snippets shows how to use the API to build a image recognition service that uses a pre-trained Inception model: 
 
 ```java
 /* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
@@ -171,18 +173,7 @@ public class LabelImage {
 }
 ```
 
-## Building Sources
-
-To build all the artifacts, simply invoke the command `mvn install` at the root of this repository (or 
-the Maven command of your choice).
-
-Note that in some cases, if a version of the TensorFlow runtime library is not found for your environment,
-this process will fetch TensorFlow sources and trigger a build of all the native code (which can take
-many hours on a standard laptop). In this case, you will also need to have a valid environment for building
-TensorFlow, including the [bazel](https://bazel.build/) build tool and a few python dependencies. Please
-read [TensorFlow documentation](https://www.tensorflow.org/install) for more details.
-
-## Using Maven Artifacts
+## Details about using Tensorflow Maven artifacts
 
 To include TensorFlow in your Maven application, you first need to add a dependency on both
 `tensorflow-core` and `tensorflow-core-native` artifacts. The later could be included multiple times
@@ -248,6 +239,17 @@ significantly increase  the size of your JAR. So it is good practice to limit yo
 the platforms you are targeting.
 
 *Note: the `tensorflow` starter artifact is not available at this moment*
+
+## Building Sources
+
+To build all the artifacts, simply invoke the command `mvn install` at the root of this repository (or 
+the Maven command of your choice).
+
+Note that in some cases, if a version of the TensorFlow runtime library is not found for your environment,
+this process will fetch TensorFlow sources and trigger a build of all the native code (which can take
+many hours on a standard laptop). In this case, you will also need to have a valid environment for building
+TensorFlow, including the [bazel](https://bazel.build/) build tool and a few python dependencies. Please
+read [TensorFlow documentation](https://www.tensorflow.org/install) for more details.
 
 ## How to Contribute?
 
