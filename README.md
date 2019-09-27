@@ -36,9 +36,9 @@ Create a new maven Java project and add the following `tensorflow` dependency:
 
 With this you are ready to start using the `Tensorflow Java API` for building new or inferring a pre-built Tensorflow models. 
 
-Following snippets shows how to use the API to build a image recognition service that uses an [Inception model](https://github.com/tensorflow/models/tree/master/inception) to classify in real-time images into different categories (e.g. labels).
+Following snippets shows how to use the API to build a image recognition service that uses an [Inception model](https://github.com/tensorflow/models/tree/master/inception) to classify input images into different categories (e.g. labels).
 
-The input of the service are the model path and the image location. Result contains the name of the recognized category (e.g. label) along with the confidence (e.g. confidence) that the image represents this category. 
+The service takes the model path and the image location and an input. The result contains the names of the recognized categories (e.g. labels) along with the confidence that the image represents this category. 
 
 ```java
 /* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
