@@ -39,6 +39,138 @@ The following describes the layout of the repository and its different artifacts
   
 *Note: Right now, only the `core` component is present*
   
+## Getting Started
+
+Create a new maven Java project and add the `tensorflow` dependency to your application:
+
+```xml
+<dependency>
+  <groupId>org.tensorflow</groupId>
+  <artifactId>tensorflow</artifactId>
+  <version>2.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+Next you can use the Tensorflow Java API to build a image recognition service that uses a pre-trained Inception model: 
+
+```java
+/* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+package org.tensorflow.model.sample.eager;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+
+import org.tensorflow.EagerSession;
+import org.tensorflow.Graph;
+import org.tensorflow.Operand;
+import org.tensorflow.Session;
+import org.tensorflow.Tensor;
+import org.tensorflow.TensorFlow;
+import org.tensorflow.op.Ops;
+import org.tensorflow.op.image.DecodeJpeg;
+
+/** Sample use of the TensorFlow Java API to label images using a pre-trained model. */
+public class LabelImage {
+
+  /** Usage: label_image <model dir> <image file> */
+  public static void main(String[] args) {
+    String modelDir = args[0];
+    String imageFile = args[1];
+
+    byte[] graphDef = readAllBytesOrExit(Paths.get(modelDir, "tensorflow_inception_graph.pb"));
+    List<String> labels = readAllLinesOrExit(Paths.get(modelDir, "imagenet_comp_graph_label_strings.txt"));
+    byte[] imageBytes = readAllBytesOrExit(Paths.get(imageFile));
+
+    Tensor<Float> image = normalizeImage(imageBytes);
+    float[] labelProbabilities = executeInceptionGraph(graphDef, image);
+    int bestLabelIdx = maxIndex(labelProbabilities);
+
+    System.out.println(String.format("BEST MATCH: %s (%.2f%% likely)", labels.get(bestLabelIdx), labelProbabilities[bestLabelIdx] * 100f));
+  }
+
+  /** Normalize image eagerly */
+  private static Tensor<Float> normalizeImage(byte[] imageBytes) {
+    try (EagerSession session = EagerSession.create()) {
+      Ops tf = Ops.create(session);
+      final int H = 224;
+      final int W = 224;
+      final float mean = 117f;
+      final float scale = 1f;      
+      final Operand<Float> decodedImage = tf.dtypes.cast(tf.image.decodeJpeg(tf.constant(imageBytes), DecodeJpeg.channels(3L)), Float.class);
+      final Operand<Float> resizedImage = tf.image.resizeBilinear(tf.expandDims(decodedImage, tf.constant(0)), tf.constant(new int[] {H, W}));     
+      final Operand<Float> normalizedImage = tf.math.div(tf.math.sub(resizedImage, tf.constant(mean)), tf.constant(scale));      
+      return normalizedImage.asOutput().tensor();
+    }
+  }
+
+  private static float[] executeInceptionGraph(byte[] graphDef, Tensor<Float> image) {
+    try (Graph g = new Graph()) {
+      g.importGraphDef(graphDef);
+      try (Session s = new Session(g);
+          // Generally, there may be multiple output tensors, all of them must be closed to prevent resource leaks.
+          Tensor<Float> result = s.runner().feed("input", image).fetch("output").run().get(0).expect(Float.class)) {
+        final long[] rshape = result.shape();
+        if (result.numDimensions() != 2 || rshape[0] != 1) {
+          throw new RuntimeException(String.format("Expected model to produce a [1 N] shaped tensor where N is the number of labels, instead it produced one with shape %s", Arrays.toString(rshape)));
+        }
+        int nlabels = (int) rshape[1];
+        return result.copyTo(new float[1][nlabels])[0];
+      }
+    }
+  }
+
+  private static int maxIndex(float[] probabilities) {
+    int best = 0;
+    for (int i = 1; i < probabilities.length; ++i) {
+      if (probabilities[i] > probabilities[best]) {
+        best = i;
+      }
+    }
+    return best;
+  }
+
+  private static byte[] readAllBytesOrExit(Path path) {
+    try {
+      return Files.readAllBytes(path);
+    } catch (IOException e) {
+      System.err.println("Failed to read [" + path + "]: " + e.getMessage());
+      System.exit(1);
+    }
+    return null;
+  }
+
+  private static List<String> readAllLinesOrExit(Path path) {
+    try {
+      return Files.readAllLines(path, Charset.forName("UTF-8"));
+    } catch (IOException e) {
+      System.err.println("Failed to read [" + path + "]: " + e.getMessage());
+      System.exit(0);
+    }
+    return null;
+  }
+}
+```
+
 ## Building Sources
 
 To build all the artifacts, simply invoke the command `mvn install` at the root of this repository (or 
