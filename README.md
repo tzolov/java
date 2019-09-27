@@ -14,30 +14,13 @@ and developers working in this domain. Java and other JVM languages, such as Sca
 frequently used in small-to-large enterprises all over the world, which makes TensorFlow a strategic 
 choice for adopting machine learning at a large scale.
 
-## This Repository
+#### About this Repository
 
 In the early days, the Java language bindings for TensorFlow were hosted in the [main repository](https://github.com/tensorflow/tensorflow)
 and released only when a new version of the core library was ready to be distributed, which happens only
 a few times a year. Now, all Java-related code has been moved to this repository so that it can evolve and 
 be released independently from official TensorFlow releases. In addition, most of the build tasks have been
 migrated from Bazel to Maven, which is more familiar for most Java developers.
-
-The following describes the layout of the repository and its different artifacts:
-
-* `core`
-  * All artifacts that build up the core language bindings of TensorFlow for Java. 
-  * Those artifacts provide the minimal support required to use the TensorFlow runtime on a JVM.
-  
-* `utils`
-  * Utility libraries that do not depend on the TensorFlow runtime but are useful for machine learning purposes
-  
-* `frameworks`
-  * High-level APIs built on top of the core libraries for simplifying the usage of TensorFlow in Java.
-  
-* `starters`
-  * Artifacts aggregating others for simplifying dependency management with TensorFlow
-  
-*Note: Right now, only the `core` component is present*
   
 ## Getting Started
 
@@ -174,6 +157,23 @@ public class LabelImage {
   }
 }
 ```
+## Repository Layout
+The following describes the layout of the repository and its different artifacts:
+
+* `core`
+  * All artifacts that build up the core language bindings of TensorFlow for Java. 
+  * Those artifacts provide the minimal support required to use the TensorFlow runtime on a JVM.
+  
+* `utils`
+  * Utility libraries that do not depend on the TensorFlow runtime but are useful for machine learning purposes
+  
+* `frameworks`
+  * High-level APIs built on top of the core libraries for simplifying the usage of TensorFlow in Java.
+  
+* `starters`
+  * Artifacts aggregating others for simplifying dependency management with TensorFlow
+  
+*Note: Right now, only the `core` component is present*
 
 ## Details about using Tensorflow Maven artifacts
 
